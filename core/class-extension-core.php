@@ -65,12 +65,6 @@ if ( ! class_exists( '\WPWhiteSecurity\ActivityLog\Extensions\Common\Core' ) ) {
 				$this->custom_alert_path        = trailingslashit( dirname( $extension_main_file_path ) ) . 'wp-security-audit-log';
 				$this->custom_sensor_path       = trailingslashit( trailingslashit( dirname( $extension_main_file_path ) ) . 'wp-security-audit-log' . DIRECTORY_SEPARATOR . 'custom-sensors' );
 			}
-			// If we dont have array, then continue with the as normal.
-			else {
-				$this->extension_text_domain  = $text_domain;
-				$this->custom_alert_path      = trailingslashit( dirname( $extention_main_file_path ) ) . 'wp-security-audit-log';
-				$this->custom_sensor_path     = trailingslashit( trailingslashit( dirname( $extention_main_file_path ) ) . 'wp-security-audit-log' . DIRECTORY_SEPARATOR . 'custom-sensors' );
-			}
 
 			$this->extention_main_file_path = $extention_main_file_path;
 

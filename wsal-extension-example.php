@@ -1,11 +1,11 @@
 <?php
 /**
- * Plugin Name: WP Activity Log Extension for (Plugin name)
- * Plugin URI: https://wpactivitylog.com/extensions/
+ * Plugin Name: I3MEDIA Security Plugin
+ * Plugin URI: http://www.i3-media.com
  * Description: A WP Activity Log plugin extension
  * Text Domain: my-custom-textdomain
- * Author: WP White Security
- * Author URI: http://www.wpwhitesecurity.com/
+ * Author: Juan Perez
+ * Author URI: http://www.i3-media.com
  * Version: 1.0.0
  * License: GPL2
  * Network: true
@@ -45,6 +45,11 @@ $wsal_extension = new WPWhiteSecurity\ActivityLog\Extensions\Common\Core( __FILE
 	and edit as you wish.
 */
 
+ 
+// Check if get_plugins() function exists. This is required on the front end of the
+// site, since it is in a file that is normally only loaded in the admin.
+
+
 /**
  * Register a custom event object within WSAL.
  *
@@ -60,6 +65,115 @@ function wsal_extension_core_add_custom_event_objects( $objects ) {
 	//
 	// return $objects;
 }
+
+
+
+
+
+// display the plugin settings page
+function myplugin_display_purpose_page() {
+	
+ 
+
+// Check if get_plugins() function exists. This is required on the front end of the
+// site, since it is in a file that is normally only loaded in the admin.
+if ( ! function_exists( 'get_plugins' ) ) {
+    require_once ABSPATH . 'wp-admin/includes/plugin.php';
+}
+ 
+$all_plugins = get_plugins();
+
+// this does work and as long as the select doesnt have the matching $plugins var it will displau, otherwise for some reason it
+function list_my_plugins(){
+    $plugins = get_plugins();
+    $output = '<ul id="">';
+    foreach ( $plugins as $plugin ){
+        $output .= '<li>' . $plugin['Name'] . '</li>';
+    }
+    $output .= '</ul>';
+    return $output;
+}
+
+
+//find out why it isnt grabbing the name as it is for the list my plugins one?? 
+function selection_plugin() {
+	$choices = get_plugins();
+	$selection = '<select name="plugins">';
+	foreach($choices as $choice) {
+		$selection .= '<option value="' . $choice['Name'] .'">' . $choice['Name'] . '</option>';
+	}
+	$selection .= '</select>';
+	return $selection;
+}
+
+	// check if user is allowed access
+	if ( ! current_user_can( 'manage_options' ) ) return;
+	
+	?>
+
+
+
+
+	<!-- below is the function for how to properly display to the plugin page and where the user input should be handled -->
+	<!-- GOT IT WORKING! Now need to have the input post to the database to be saved and so we can display it in the log.  -->
+	<div class="wrap">
+		
+		<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
+		<h2>Please select the Plugin and the purpose it serves.</h2>
+<form>
+	<?php echo selection_plugin()?>
+	<br>
+	<textarea type="text" placeholder="Enter purpose here..." rows="10" cols="50"></textarea>
+	<br>
+    <input type="submit" value="Submit">
+</form>
+
+
+<!-- this displays all the plugins. simply for testing to find a way to implement this into the selection drop down -->
+		<h2><?php echo list_my_plugins() ?> </h2>
+
+	</div>
+
+	
+	<?php
+}
+
+
+// TODO: Find out why this is showing on both the purpose and log sections both times. Need to have Purpose function show on purpose 
+//and Log show on log.
+
+
+function myplugin_display_log_page() {
+	
+	// check if user is allowed access
+	if ( ! current_user_can( 'manage_options' ) ) return;
+	
+	?>
+	<!-- below is the function for how to properly display to the plugin page and where the user input should be handled -->
+	<div class="wrap">
+		<h2>Plugin Log</h2>
+		
+		<form action="options.php" method="post">
+			
+			<?php
+			
+			// output security fields
+			settings_fields( 'myplugin_options' );
+			
+			// output setting sections
+			do_settings_sections( 'myplugin' );
+			
+			// submit button
+			submit_button();
+			
+			?>
+			
+		</form>
+	</div>
+	
+	<?php
+}
+
 
 /**
  * Add a custom post type to the ignored list.
@@ -100,8 +214,46 @@ function wsal_extension_core_add_custom_meta_format( $value, $name ) {
 	// return $value;
 }
 
+
 /*
 	Filter in our custom functions into WSAL.
  */
 add_filter( 'wsal_event_objects', 'wsal_extension_core_add_custom_event_objects', 10, 2 );
 add_filter( 'wsal_meta_formatter_custom_formatter', 'wsal_extension_core_add_custom_meta_format', 10, 2 );
+
+// add sub-level administrative menu
+function myplugin_add_sublevel_menu() {
+	
+	/*
+	
+	add_submenu_page(
+		string   $parent_slug,
+		string   $page_title,
+		string   $menu_title,
+		string   $capability,
+		string   $menu_slug,
+		callable $function = ''
+	);
+	
+	*/
+	
+	add_submenu_page(
+		'plugins.php',
+		'Purpose of Plugin',
+		'Purpose',
+		'manage_options',
+		'myplugin',
+		'myplugin_display_purpose_page'
+	);
+	add_submenu_page(
+		'plugins.php',
+		'Log',
+		'Log',
+		'manage_options',
+		'myplugin',
+		'myplugin_display_log_page'
+	);
+	
+}
+add_action( 'admin_menu', 'myplugin_add_sublevel_menu' );
+
