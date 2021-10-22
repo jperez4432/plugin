@@ -123,7 +123,7 @@ function selection_plugin() {
 <form>
 	<?php echo selection_plugin()?>
 	<br>
-	<textarea type="text" placeholder="Enter purpose here..." rows="10" cols="50"></textarea>
+	<textarea type="text" placeholder="Enter purpose here..." rows="10" cols="50" name="purpose"></textarea>
 	<br>
     <input type="submit" value="Submit">
 </form>
